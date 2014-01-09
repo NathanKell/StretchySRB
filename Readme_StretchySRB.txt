@@ -17,7 +17,7 @@ Note: this SUPERCEDES any prior Stretchy Tanks-related work by either NathanKell
 
 INSTALL:
 DELETE YOUR OLD STRETCHYTANKS FOLDER in the KSP/GameData folder. Then unzip this folder to KSP/GameData
-You may also find, in the StretchyTanks/Parts folder, a Template file with the grit layers I use to make the tanks look slightly worn.
+You may also find, in the StretchyTanks/Parts folder, a Template file with the grit layers I use to make the tanks look slightly worn. Feel free to use it and make (and post!) new textures!
 
 License remains CC-BY-SA 3.0 Unported
 
