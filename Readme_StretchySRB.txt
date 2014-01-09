@@ -27,6 +27,7 @@ v8.1 =\/=
 *Fixed BlueSides repeating
 *Fixed sea level SRB nozzle giving blackscreens (thanks to DYJ and swamp_ig)
 *swamp_ig: support tweakables, add structural tanks, refactor code
+*updated tank descriptions
 
 
 v8 == \/ ==
