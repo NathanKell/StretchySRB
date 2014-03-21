@@ -22,12 +22,13 @@ You may also find, in the StretchyTanks/Parts folder, a Template file with the g
 License remains CC-BY-SA 3.0 Unported
 
 Changelog
-v8.2 =\/=
+v9 =\/=
 *Final pre-Procedural Parts release
 *Moved RF tanks over to RF mod. Will no longer clutter partlist
 *Deprecate non-superstretchy tanks (available to old craft but hidden in part list)
 *Support RF v6
 *Fix heatProduction for SRBs when using DRE
+*Add Version Checker (Majiir / Ferram)
 *Add "utilization" factor: essentially a hack to allow you to copy real rockets. Fat short tanks should have lower utilization; long tall tanks should have higher. Example values: Titan II lower stage: 0.87. Saturn V lower stage: 0.8. Titan II upper stage: 0.7. Atlas D through I: ~0.85. ***NOTE: you MUST rescale the tank slightly after changing utilization or the volume won't update. After that, you can scale it back.***
 
 
