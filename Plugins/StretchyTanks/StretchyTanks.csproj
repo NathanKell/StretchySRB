@@ -44,12 +44,14 @@
       <HintPath>..\..\..\..\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Checkers.cs" />
     <Compile Include="stretchyTanks.cs" />
     <Compile Include="conicTank.cs" />
   </ItemGroup>
