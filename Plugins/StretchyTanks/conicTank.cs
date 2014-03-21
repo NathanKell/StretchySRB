@@ -74,7 +74,7 @@ public class StretchyConicTank : StretchyTanks
   }
 
 
-  public override float calcVolumeFactor()
+  public override double calcVolumeFactor()
   {
     double volume=0;
     var pp=new Vector2(radialFactor, 0);
@@ -103,7 +103,7 @@ public class StretchyConicTank : StretchyTanks
       pp=p;
     }
 
-    return (float)volume * stretchFactor * volMultiplier;
+    return volume * stretchFactor * volMultiplier * utilization / 0.8692f;
   }
 
 
@@ -176,8 +176,8 @@ public class StretchyConicTank : StretchyTanks
       if (Input.GetKey(topRadKey) && editor.editorScreen!=EditorLogic.EditorScreen.Actions)
       {
         float initialValue=topFactor;
-        topFactor+=(Input.GetAxis("Mouse X")+Input.GetAxis("Mouse Y")) * 0.075f;
-        topFactor=Mathf.Max(topFactor, 0.025f);
+        topFactor += (Input.GetAxis("Mouse X") + Input.GetAxis("Mouse Y")) * 0.01f * (Input.GetKey(KeyCode.LeftShift) ? 10f : 1f);
+        topFactor=Mathf.Max(topFactor, 0.01f);
         topFactor=Mathf.Min(topFactor, maxRFactor);
         if (initialValue!=radialFactor)
         {

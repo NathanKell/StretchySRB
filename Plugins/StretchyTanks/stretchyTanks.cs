@@ -34,7 +34,10 @@ public class StretchyTanks : PartModule
 
     [KSPField]
     public float initialDryMass;
-    
+
+    [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = true, guiName = "Utilization", guiFormat = "0.##"), UI_FloatRange(minValue = 0.5f, maxValue = 1.0f, stepIncrement = 0.01f)]
+    public float utilization = 0.8692f;
+
     [KSPField]
     public float volMultiplier = 1.0f; // for MFS
 
@@ -186,7 +189,7 @@ public class StretchyTanks : PartModule
         }
     }
 
-    public virtual float calcVolumeFactor() { return stretchFactor * radialFactor * radialFactor * volMultiplier; }
+    public virtual double calcVolumeFactor() { return stretchFactor * radialFactor * radialFactor * volMultiplier * utilization / 0.8692f; }
 
     public void updateMass()
     {
@@ -194,24 +197,24 @@ public class StretchyTanks : PartModule
             return;
         switch(tankType) {
             case TANK_MIXED:
-                part.mass = Mathf.Round(initialDryMass * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
             case TANK_LIQUID_FUEL:
-                part.mass = Mathf.Round(initialDryMass * 0.575f * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * 0.575f * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
             case TANK_MONOPROP:
-                part.mass = Mathf.Round(initialDryMass * 1f * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * 1f * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
             case TANK_OXIDIZER:
-                part.mass = Mathf.Round(initialDryMass * 0.75f * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * 0.75f * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
             case TANK_SOLID:
                 // NK add solid fuel, dry mass = 0.0015 per unit, or 1:6 given SF's mass of 0.0075t per unit
-                part.mass = Mathf.Round(initialDryMass * 1.5f * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * 1.5f * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
             case TANK_STRUCTURAL:
                 // Structural Fuselage / Dry Mass FL-T400
-                part.mass = Mathf.Round(initialDryMass * 0.8f * calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
+                part.mass = Mathf.Round(initialDryMass * 0.8f * (float)calcVolumeFactor() * 1000f / volMultiplier) / 1000f;
                 break;
         }
     }
@@ -246,7 +249,7 @@ public class StretchyTanks : PartModule
 
     public void updateForceTorque()
     {
-        float massFactor = initialDryMass * calcVolumeFactor();
+        float massFactor = initialDryMass * (float)calcVolumeFactor();
         part.breakingForce = 969.47f * Mathf.Pow(massFactor, 0.3684f);
         part.breakingTorque = 969.47f * Mathf.Pow(massFactor, 0.3684f);
     }
@@ -260,7 +263,7 @@ public class StretchyTanks : PartModule
             tankType = TANK_SOLID; // NK
 
         // find volume
-        float volume = initialDryMass * 9.203885f * calcVolumeFactor();
+        float volume = initialDryMass * 9.203885f * (float)calcVolumeFactor();
 
         // add resources
         switch (tankType)
@@ -360,7 +363,7 @@ public class StretchyTanks : PartModule
             ModuleEngines mE = (ModuleEngines)part.Modules["ModuleEngines"];
             float mThrust = (float)Math.Round(mE.atmosphereCurve.Evaluate(0) * part.Resources["SolidFuel"].maxAmount * part.Resources["SolidFuel"].info.density * 9.81f / burnTime, 2);
             mE.maxThrust = mThrust;
-            mE.heatProduction = (float)Math.Round((200f + 5200f / Math.Pow((burnTime + 20f), 0.75f)) * 0.5f);
+            mE.heatProduction = (float)Math.Round((200f + 5200f / Math.Pow((burnTime + 20f), 0.75f)) * 0.5f * part.maxTemp / 3600f);
             if (part.Modules.Contains("ModuleEngineConfigs"))
             {
 
@@ -893,13 +896,13 @@ public class StretchyTanks : PartModule
             {
                 try
                 {
-                    float curVolume = initialDryMass * calcVolumeFactor() * 1600;
-                    const float DELTA = 0.01f;
-                    float mVol = (float)(part.Modules["ModuleFuelTanks"].Fields.GetValue("volume"));
-                    if (mVol > curVolume + DELTA || mVol < curVolume - DELTA)
-                    {
+                    double curVolume = (double)initialDryMass * calcVolumeFactor() * 1600;
+                    //const double DELTA = 0.001f;
+                    //double mVol = (double)(part.Modules["ModuleFuelTanks"].Fields.GetValue("volume"));
+                    //if (mVol > curVolume + DELTA || mVol < curVolume - DELTA)
+                    //{
                         part.Modules["ModuleFuelTanks"].SendMessage("ChangeVolume", (curVolume));
-                    }
+                    //}
                 }
                 catch (Exception e)
                 {
@@ -990,26 +993,33 @@ public class StretchyTanks : PartModule
                     triggerUpdate = true;
                 }
             }
-            if (!stretchSRB && Input.GetKeyDown(tankTypeKey) && !part.Modules.Contains("ModuleFuelTanks"))
+            if (!stretchSRB && Input.GetKeyDown(tankTypeKey))
             {
-                switch (tankType)
+                if (part.Modules.Contains("ModuleFuelTanks"))
                 {
-                    case TANK_MIXED:
-                        tankType = TANK_LIQUID_FUEL;
-                        break;
-                    case TANK_LIQUID_FUEL:
-                        tankType = TANK_OXIDIZER;
-                        break;
-                    case TANK_MONOPROP:
-                        tankType = TANK_STRUCTURAL;
-                        break;
-                    case TANK_OXIDIZER:
-                        tankType = TANK_MONOPROP;
-                        break;
-                    case TANK_STRUCTURAL:
-                        tankType = TANK_MIXED;
-                        break;
 
+                }
+                else
+                {
+                    switch (tankType)
+                    {
+                        case TANK_MIXED:
+                            tankType = TANK_LIQUID_FUEL;
+                            break;
+                        case TANK_LIQUID_FUEL:
+                            tankType = TANK_OXIDIZER;
+                            break;
+                        case TANK_MONOPROP:
+                            tankType = TANK_STRUCTURAL;
+                            break;
+                        case TANK_OXIDIZER:
+                            tankType = TANK_MONOPROP;
+                            break;
+                        case TANK_STRUCTURAL:
+                            tankType = TANK_MIXED;
+                            break;
+
+                    }
                 }
                 triggerUpdate = true;
             }
